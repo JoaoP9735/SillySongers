@@ -1,3 +1,4 @@
+// frontend/src/pages/Register.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,27 +16,59 @@ const Register = () => {
     confirmPassword: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "The Parchment Crumbles",
-        description: "Your passwords do not match. Try again, brave soul.",
+        title: "As senhas não coincidem",
+        description: "Por favor, verifique suas senhas e tente novamente.",
         variant: "destructive",
       });
       return;
     }
 
-    // Mock registration success
-    toast({
-      title: "The Pact is Sealed! ✨",
-      description: "Your oath has been accepted. Welcome to the Guild.",
-    });
-    
-    setTimeout(() => {
-      navigate("/training-grounds");
-    }, 1500);
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/users/register/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: formData.name, // O backend espera 'nome'
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "O Pacto foi Selado! ✨",
+          description: "Seu juramento foi aceito. Bem-vindo à Guilda.",
+        });
+        setTimeout(() => {
+          navigate("/"); // Redireciona para a página de login após o registro
+        }, 1500);
+      } else {
+        const errorData = await response.json();
+        // Transforma o objeto de erro em uma string mais legível
+        const errorMessage = Object.entries(errorData)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join('; ');
+        
+        toast({
+          title: "Erro ao selar o pacto",
+          description: errorMessage || "Ocorreu um erro. Por favor, tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "A conexão falhou",
+        description: "Não foi possível se conectar aos servidores da Guilda. Verifique sua conexão.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

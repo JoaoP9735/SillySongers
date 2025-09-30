@@ -1,3 +1,4 @@
+// frontend/src/pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,16 +6,53 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Mail, Lock, Flame } from "lucide-react";
 import castleGates from "@/assets/castle-gates.jpg";
+import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - in real app would validate credentials
-    navigate("/training-grounds");
+    
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/users/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Em um app real, você salvaria o token de forma segura
+        // Por exemplo: localStorage.setItem('authToken', data.token);
+        console.log("Login successful:", data);
+        
+        toast({
+          title: "Portões Abertos!",
+          description: "Bem-vindo de volta, nobre guerreiro.",
+        });
+
+        navigate("/training-grounds");
+
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Credenciais Inválidas",
+          description: errorData.error || "Seu juramento não foi reconhecido.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "A conexão falhou",
+        description: "Não foi possível se conectar aos servidores da Guilda.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
