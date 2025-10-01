@@ -9,10 +9,12 @@ Através do método de estudos pomodoro, integrado com um sistema de ranqueament
 
 #### 3. Crie uma sala ou juntar-se a um de seus amigos, através do código de sala, que é criado junto com ela.
 <img width="923" height="677" alt="image" src="https://github.com/user-attachments/assets/1b246efa-8de3-4832-af28-95c124bd2084" />
+
 <img width="555" height="686" alt="image" src="https://github.com/user-attachments/assets/e71d7d87-5f26-4417-9ea5-c683a0913635" />
 
 #### 4. Adicione tarefas com data de entrega na aba de bosses, determinando sua dificuldade, que será refletida no número de pomodoros que devem ser realizdos (por pessoa) a fim de derrotá-lo.
 <img width="915" height="701" alt="image" src="https://github.com/user-attachments/assets/6058ab88-f872-4a30-86cd-b5058c7bd861" />
+
 <img width="905" height="704" alt="image" src="https://github.com/user-attachments/assets/635fb4b3-6382-4dd3-945b-404ebab75eb4" />
 
 #### 5. Enviar documentos para compartilhar conhecimento ancestral com seus companheiros de jornada
