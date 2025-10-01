@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,20 @@ const Quest = () => {
   const [longBreak, setLongBreak] = useState([15]);
   const [isActive, setIsActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<"study" | "short" | "long">("study");
+  // Sincroniza o timer com os sliders quando não está ativo
+  useEffect(() => {
+    if (!isActive) {
+      if (currentPhase === "study") {
+        setTimeLeft(studyDuration[0] * 60);
+      } else if (currentPhase === "short") {
+        setTimeLeft(shortBreak[0] * 60);
+      } else if (currentPhase === "long") {
+        setTimeLeft(longBreak[0] * 60);
+      }
+    }
+  }, [studyDuration, shortBreak, longBreak, currentPhase, isActive]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -41,6 +54,40 @@ const Quest = () => {
       variant: "destructive",
     });
   };
+
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isActive && timeLeft > 0) {
+      timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    } else if (isActive && timeLeft === 0) {
+      if (currentPhase === "study") {
+        setCurrentPhase("short");
+        setTimeLeft(shortBreak[0] * 60);
+        toast({
+          title: "Short Break! 🛡️",
+          description: "Rest briefly before your next training session.",
+        });
+      } else if (currentPhase === "short") {
+        setCurrentPhase("study");
+        setTimeLeft(studyDuration[0] * 60);
+        toast({
+          title: "Back to Training! ⚔️",
+          description: "Focus on your quest once more.",
+        });
+      } else if (currentPhase === "long") {
+        setCurrentPhase("study");
+        setTimeLeft(studyDuration[0] * 60);
+        toast({
+          title: "Back to Training! ⚔️",
+          description: "Focus on your quest once more.",
+        });
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [isActive, timeLeft, currentPhase, studyDuration, shortBreak, longBreak]);
 
   return (
     <div className="min-h-screen p-6 relative overflow-hidden">
