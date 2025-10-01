@@ -1,11 +1,19 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Shield, Plus, DoorOpen, Scroll, LogOut, Sword, Flag } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import trainingGrounds from "@/assets/training-grounds.jpg";
+import { apiFetch } from "@/lib/api";
 
 const TrainingGrounds = () => {
   const navigate = useNavigate();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [circleName, setCircleName] = useState("");
   
   // Mock user data
   const userName = "Sir Galahad";
@@ -13,6 +21,54 @@ const TrainingGrounds = () => {
   const handleLogout = () => {
     navigate("/");
   };
+
+  const handleCreateCircle = async () => {
+    const token = localStorage.getItem("authToken")
+    if (!circleName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a circle name",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+        const response = await apiFetch('/groups/create/', { // Use o endpoint relativo
+    method: "POST",
+    body: JSON.stringify({
+      nome: circleName
+    }),
+  });
+      if (response.ok) {
+        toast({
+          title: "O Pacto foi Selado! ✨",
+          description: "Seu juramento foi aceito. Bem-vindo à Guilda.",
+        });
+        setTimeout(() => {
+          navigate("/"); // Redireciona para a página de login após o registro
+        }, 1500);
+      } else {
+        const errorData = await response.json();
+        // Transforma o objeto de erro em uma string mais legível
+        const errorMessage = Object.entries(errorData)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join('; ');
+        
+        toast({
+          title: "Erro ao selar o pacto",
+          description: errorMessage || "Ocorreu um erro. Por favor, tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "A conexão falhou",
+        description: "Não foi possível se conectar aos servidores da Guilda. Verifique sua conexão.",
+        variant: "destructive",
+      });
+    }
+  };
+    
 
   return (
     <div className="min-h-screen p-6 relative overflow-hidden">
@@ -68,7 +124,7 @@ const TrainingGrounds = () => {
           {/* Create New Circle */}
           <Card 
             className="stone-texture p-8 border-2 border-border hover:border-primary cursor-pointer transition-all hover:scale-105 group"
-            onClick={() => navigate("/create-circle")}
+            onClick={() => setIsCreateDialogOpen(true)}
           >
             <div className="text-center space-y-4">
               <div className="flex justify-center">
@@ -129,6 +185,41 @@ const TrainingGrounds = () => {
           </div>
         </div>
       </div>
+
+      {/* Create Circle Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="stone-texture">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-foreground">Forge New Circle</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Create a new study guild to begin your quest with fellow warriors
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="circleName" className="text-foreground">Circle Name</Label>
+              <Input
+                id="circleName"
+                placeholder="Enter your guild's name..."
+                value={circleName}
+                onChange={(e) => setCircleName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateCircle()}
+                className="parchment-texture"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="stone" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="parchment" onClick={handleCreateCircle}>
+              Forge Circle
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

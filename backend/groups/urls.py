@@ -1,10 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import GroupViewSet
-
-router = DefaultRouter()
-router.register(r'', GroupViewSet, basename='group')
+from django.urls import path
+# Importa os nomes corretos que existem em views.py
+from .views import GroupCreateView, MyGroupsListView
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Esta rota usa a 'GroupCreateView'
+    path('create/', GroupCreateView.as_view(), name='group-create'),
+    
+    # Esta rota usa a 'MyGroupsListView'
+    path('mine/', MyGroupsListView.as_view(), name='my-groups-list'),
 ]

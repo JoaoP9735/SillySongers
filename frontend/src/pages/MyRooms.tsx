@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, Users, Trophy, ChevronRight } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 const MyRooms = () => {
   const navigate = useNavigate();
@@ -33,6 +34,26 @@ const MyRooms = () => {
       color: "from-amber-600 to-yellow-600"
     },
   ];
+
+  const handleFetch() => {
+    const token = localStorage.getItem("authToken")
+    apiFetch('/groups/mine', { 
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Failed to fetch rooms');
+      }
+    }).then(data => {
+      console.log('Fetched rooms:', data);
+    }).catch(error => {
+      console.error('Error fetching rooms:', error);
+    });
+  }
 
   return (
     <div className="min-h-screen p-6 relative overflow-hidden">

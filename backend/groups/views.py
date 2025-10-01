@@ -1,47 +1,32 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+# backend/groups/views.py
+from rest_framework import generics, permissions
 from .models import Group
-from users.models import CustomUser
-from .serializers import GroupSerializer, ManageUserSerializer
+from .serializers import GroupSerializer
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupCreateView(generics.CreateAPIView):
     """
-    API endpoint que permite aos grupos serem vistos ou editados.
+    View para criar um novo grupo (aceita POST).
+    O usuário que cria o grupo é automaticamente adicionado a ele.
     """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated] # Apenas usuários autenticados podem interagir
+    permission_classes = [permissions.IsAuthenticated]
 
-    @action(detail=True, methods=['post'], serializer_class=ManageUserSerializer)
-    def adicionar_usuario(self, request, pk=None):
-        """Adiciona um usuário ao grupo."""
-        grupo = self.get_object()
-        serializer = ManageUserSerializer(data=request.data)
-        if serializer.is_valid():
-            user_id = serializer.validated_data['user_id']
-            try:
-                usuario = CustomUser.objects.get(id=user_id)
-                grupo.usuarios.add(usuario)
-                return Response({'status': 'usuário adicionado'}, status=status.HTTP_200_OK)
-            except CustomUser.DoesNotExist:
-                return Response({'error': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        # Salva o grupo primeiro
+        group = serializer.save()
+        # Adiciona o usuário logado (que criou o grupo) à relação ManyToMany
+        group.usuarios.add(self.request.user)
 
-    @action(detail=True, methods=['post'], serializer_class=ManageUserSerializer)
-    def remover_usuario(self, request, pk=None):
-        """Remove um usuário do grupo."""
-        grupo = self.get_object()
-        serializer = ManageUserSerializer(data=request.data)
-        if serializer.is_valid():
-            user_id = serializer.validated_data['user_id']
-            try:
-                usuario = CustomUser.objects.get(id=user_id)
-                grupo.usuarios.remove(usuario)
-                return Response({'status': 'usuário removido'}, status=status.HTTP_200_OK)
-            except CustomUser.DoesNotExist:
-                return Response({'error': 'Usuário não encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class MyGroupsListView(generics.ListAPIView):
+    """
+    View para listar apenas os grupos do usuário autenticado (aceita GET).
+    """
+    serializer_class = GroupSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Filtra o queryset para retornar apenas os grupos
+        # aos quais o usuário logado pertence.
+        user = self.request.user
+        return user.grupos.all()

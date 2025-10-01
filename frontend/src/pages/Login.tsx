@@ -27,9 +27,15 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
-        // Em um app real, você salvaria o token de forma segura
-        // Por exemplo: localStorage.setItem('authToken', data.token);
-        console.log("Login successful:", data);
+        
+        // --- ALTERAÇÃO PRINCIPAL AQUI ---
+        // Salva o token no localStorage para ser usado globalmente
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+        }
+        // ---------------------------------
+        
+        console.log("Login successful, token saved:", data.token);
         
         toast({
           title: "Portões Abertos!",

@@ -1,16 +1,9 @@
+# backend/groups/serializers.py
 from rest_framework import serializers
 from .models import Group
-from users.serializers import UserSerializer
 
 class GroupSerializer(serializers.ModelSerializer):
-    # Serializer para listar usuários com menos detalhes
-    usuarios = UserSerializer(many=True, read_only=True)
-    quantidade_usuarios = serializers.IntegerField(read_only=True)
-
     class Meta:
         model = Group
-        fields = ['id', 'nome', 'points', 'current_goal', 'usuarios', 'quantidade_usuarios']
-
-class ManageUserSerializer(serializers.Serializer):
-    # Serializer para receber o ID do usuário a ser adicionado/removido
-    user_id = serializers.UUIDField()
+        fields = ['id', 'nome', 'points', 'current_goal', 'quantidade_usuarios']
+        read_only_fields = ['points', 'quantidade_usuarios'] # Esses campos não devem ser enviados na criação
