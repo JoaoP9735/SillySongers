@@ -3,7 +3,7 @@
 ## Um app que gamifica os estudos, sendo versátil e intuitivo!
 Através do método de estudos pomodoro, integrado com um sistema de ranqueamento e inspirado pela capacidade de formar micro comunidades do GymRats, nosso app busca tornar a experiência de estudar algo interessante e que promove a competição amigável entre amigos. 
 ### Como Usar?
-#### 1. Acesse o site
+#### 1. Acesse o site: http://201.23.72.249/
 #### 2. Crie uma conta/Conectar-se com uma conta existente.
 <img width="717" height="687" alt="image" src="https://github.com/user-attachments/assets/5a6cdd9c-963f-4c3a-b39b-dffb1a7b0eac" />
 
